@@ -1,6 +1,16 @@
 import React from "react";
-const App: React.FC = (props) => {
-  return <div>Webpack is cool!</div>;
-};
+import {
+  BrowserRouter as Router,
+} from "react-router-dom";
 
-export default App;
+import NavBar from "./navBar/NavBar";
+import PageRouter from "./pageRouter/PageRouter";
+
+export default function App() {
+    return (
+        <Router>
+            <NavBar />
+            <PageRouter />
+        </Router>
+    );
+}
