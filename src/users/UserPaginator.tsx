@@ -4,20 +4,17 @@ import { useQuery } from "../shared/helpers";
 
 interface IUserPaginatorProps {
     handlePagination: (page: number) => void;
+    page: number;
 }
 
 export default function UserPaginator(props: IUserPaginatorProps) {
-    const { handlePagination } = props;
-    const query = useQuery();
-    let page = query.get("page");
-    if (!page)
-        page = "1";
+    const { page, handlePagination } = props;
 
-    const prevBtnClass = page === "1" ? " disabled" : "";
-    const nextBtnClass = page === "2" ? " disabled" : "";
+    const prevBtnClass = page === 1 ? " disabled" : "";
+    const nextBtnClass = page === 2 ? " disabled" : "";
 
     const renderPageNumber = (pageNr: number) => {
-        const disabled = Number(page) === pageNr ? " disabled" : "";
+        const disabled = page === pageNr ? " disabled" : "";
 
         return (
             <li className={`page-item${disabled}`} key={pageNr}>
@@ -33,11 +30,11 @@ export default function UserPaginator(props: IUserPaginatorProps) {
         <nav aria-label="Page navigation example">
             <ul className="pagination">
                 <li className={`page-item${prevBtnClass}`}>
-                    <Link className="page-link" to={`?page=${Number(page) - 1}`} onClick={() => handlePagination(Number(page) - 1)}>Previous</Link>
+                    <Link className="page-link" to={`?page=${page - 1}`} onClick={() => handlePagination(page - 1)}>Previous</Link>
                 </li>
                 {pages.map(page => renderPageNumber(page))}
                 <li className={`page-item${nextBtnClass}`}>
-                    <Link className="page-link" to={`?page=${Number(page) + 1}`} onClick={() => handlePagination(Number(page) + 1)}>Next</Link>
+                    <Link className="page-link" to={`?page=${page + 1}`} onClick={() => handlePagination(page + 1)}>Next</Link>
                 </li>
             </ul>
         </nav>

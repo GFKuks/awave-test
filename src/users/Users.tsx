@@ -1,71 +1,53 @@
-import React from "react";
-import { User } from "../models";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useAppSelector } from "../hooks";
+
+import { setErrors } from "../reduxSlices/errorSlice";
+import { setUsers } from "../reduxSlices/userSlice";
+import { useQuery } from "../shared/helpers";
+import { RootState } from "../store";
 import UserPaginator from "./UserPaginator";
 import UserTable from "./UserTable";
 
-interface IUsersState {
-    users: User[];
-    isLoading: boolean;
-}
+export default function Users() {
+    const dispatch = useDispatch();
+    
+    // Get page from query param
+    const query = useQuery();
+    let page = query.get("page");
+    if (!page)
+        page = "1";
 
-export default class Users extends React.Component<never, IUsersState> {
-    /**
-     *
-     */
-    constructor(props: never) {
-        super(props);
-        
-        this.state = {
-            users: [],
-            isLoading: true,
-        }
-    }
-    ////////////////////
-    // Handlers
-    ////////////////////
+    // Initial load
+    useEffect(() => {
+        loadData(Number(page));
+    }, []);
 
-    private loadData(page?: number) {
-        this.setState({
-            isLoading: true,
-        }, () => {
-            let route = "https://reqres.in/api/users";
-            if (page)
-                route += `?page=${page}`;
-
-            fetch(route, {
-                method: "GET",
-            })
-            .then((response) => {
-                return response.json()
-            })
-            .then(data => {
-                this.setState({
-                    users: data.data,
-                    isLoading: false,
-                });
-            })
-            .catch(err => console.log("err", err));
+    // Getting users from store
+    const users = useAppSelector((state) => state.users.value);
+    
+    const loadData = (page?: number) => {
+        let route = "https://reqres.in/api/users";
+        if (page)
+            route += `?page=${page}`;
+    
+        fetch(route, {
+            method: "GET",
         })
-
+        .then((response) => {
+            return response.json()
+        })
+        .then(data => {
+            dispatch(setUsers(data.data));
+        })
+        .catch(err => dispatch(setErrors(err.error)));
     }
 
-    ////////////////////
-    // Lifecycle
-    ////////////////////
-    public componentDidMount() {
-        this.loadData();
-    }
+    return (
 
-
-    ////////////////////
-    // Rendering
-    ////////////////////
-    render() {
-        return (
-            <div>
-                <UserTable data={this.state.users} />
-                <UserPaginator handlePagination={(page) => this.loadData(page)} />
-            </div>
-        );
-    }
+        <div>
+            <UserTable data={users} />
+            <UserPaginator page={Number(page)} handlePagination={(page) => loadData(page)} />
+        </div>
+    );
 }

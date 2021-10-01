@@ -11,7 +11,7 @@ import Users from "../users/Users";
 
 export default function PageRouter() {
     return (
-        <div>
+        <div className="container">
             <Switch>
                 <Route path="/signup">
                     <Signup />

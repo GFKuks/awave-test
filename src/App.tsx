@@ -6,11 +6,15 @@ import {
 import NavBar from "./navBar/NavBar";
 import PageRouter from "./pageRouter/PageRouter";
 
+import "./app.scss";
+
 export default function App() {
     return (
         <Router>
-            <NavBar />
-            <PageRouter />
+            <div className="container">
+                <NavBar />
+                <PageRouter />
+            </div>
         </Router>
     );
 }
