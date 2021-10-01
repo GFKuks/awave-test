@@ -4,6 +4,7 @@ import {
   Switch,
   Route,
 } from "react-router-dom";
+import Home from "../home/Home";
 import Login from "../login/Login";
 import Profile from "../profile/Profile";
 import Signup from "../signup/Signup";
@@ -26,7 +27,7 @@ export default function PageRouter() {
                     <Users />
                 </Route>
                 <Route path="/">
-                    <Users />
+                    <Home />
                 </Route>
             </Switch>
         </div>

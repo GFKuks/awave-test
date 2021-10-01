@@ -1,11 +1,27 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useAppSelector } from "../hooks";
+import { useHistory } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../hooks";
 
-import { setErrors } from "../reduxSlices/errorSlice";
+import { clearErrors, setErrors } from "../reduxSlices/errorSlice";
+import { setProfile } from "../reduxSlices/profileSlice";
+
+function ErrorText(error: string) {
+    const style = {
+        width: "100%",
+        "margin-top": ".25rem",
+        "font-size": ".875em",
+        color: "#dc3545",
+    }
+    return (
+        <div style={style}>
+            {error}
+        </div>
+    );
+}
 
 export default function Login() {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
+    let history = useHistory();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -32,44 +48,70 @@ export default function Login() {
         })
         .then(data => {
             if (status !== 200)
-                dispatch(setErrors(data.error))
-
-            console.log("data", data);
+                dispatch(setErrors(data.error));
+            else {
+                // Get token on success.
+                // Will set redux with random profile for demo
+                dispatch(clearErrors());
+                getProfile();
+                history.push("/profile");
+            }
         })
         .catch(err => dispatch(setErrors(err.error)));
     }
 
+    const getProfile = () => {
+        let route = "https://reqres.in/api/users/2";
+    
+        fetch(route, {
+            method: "GET",
+        })
+        .then((response) => {
+            return response.json()
+        })
+        .then(data => {
+            dispatch(setProfile(data.data));
+            // Will check this if profile is empty. Clear on logout.
+            localStorage.setItem("profile", JSON.stringify(data.data));
+        })
+        .catch(err => dispatch(setErrors(err.error)));
+
+    }
+
     const error = useAppSelector((state) => state.errors.value);
 
-    console.log("error", error);
+    let emailError: JSX.Element = <React.Fragment />;
+    let pwdError: JSX.Element = <React.Fragment />;
+
+    if (error.includes("user"))
+        emailError = ErrorText(error);
+    else if (error.includes("password"))
+        pwdError = ErrorText(error);
 
     return (
         <div>
-            <form>
+            <form >
                 <div className="mb-3">
-                    <label htmlFor="exampleInputEmail1" className="form-label">Email address</label>
+                    <label htmlFor="email" className="form-label">Email address</label>
                     <input
                         type="email"
-                        className="form-control invalid"
-                        id="exampleInputEmail1"
-                        aria-describedby="emailHelp"
+                        className="form-control"
+                        id="email"
                         value={email}
                         onChange={(ev) => setEmail(ev.target.value)}
                     />
-                    <div id="emailHelp" className="form-text">We"ll never share your email with anyone else.</div>
-                    <div className="invalid-feedback">
-                    Please provide a valid zip.
-                    </div>
+                    {emailError}
                 </div>
                     <div className="mb-3">
-                    <label htmlFor="exampleInputPassword1" className="form-label">Password</label>
+                    <label htmlFor="password" className="form-label">Password</label>
                     <input
                         type="password"
                         className="form-control"
-                        id="exampleInputPassword1"
+                        id="password"
                         value={password}
                         onChange={(ev) => setPassword(ev.target.value)}
                     />
+                    {pwdError}
                 </div>
                 <button type="submit" className="btn btn-primary" onClick={(ev) => handleLogin(ev)}>Submit</button>
             </form>
